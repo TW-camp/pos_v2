@@ -181,7 +181,7 @@ function printReceipt(buyedBarcodes){
     var aTotal=0,aOrigin=0;
     var i;
     for(i=0;i<purchasedItems.length;i++){
-      priceTotal.push({name:purchasedItems[i].name,unit:purchasedItems[i].unit,price:purchasedItems[i].price,count:purchasedItems[i].count,discount:purchasedItems[i].discount})
+      priceTotal.push({barcode:purchasedItems[i].barcode,name:purchasedItems[i].name,unit:purchasedItems[i].unit,price:purchasedItems[i].price,count:purchasedItems[i].count,discount:purchasedItems[i].discount})
     }
 
     for(i=0;i<priceTotal.length;i++){
@@ -201,9 +201,24 @@ function printReceipt(buyedBarcodes){
 
   //将商品转为字符串并输出
   function outPut (priceTotal) {
+    var i;
+
+    function priceSort(price) {
+      var temp;
+      for(i=0;i<price.length-2;i++){
+        if(parseInt(price[i].barcode.substr(4)) > parseInt(price[i+1].barcode.substr(4))){
+          temp = price[i];
+          price[i] =price[i+1];
+          price[i+1]=temp;
+        }
+      }
+      return price;
+    }
+
+   priceSort(priceTotal);
 
     var receipt="***<没钱赚商店>收据***"+"\n";
-    for(var i=0;i<priceTotal.length-1;i++){
+    for(i=0;i<priceTotal.length-1;i++){
       receipt+="名称:"+priceTotal[i].name+",数量:"+priceTotal[i].count+priceTotal[i].unit+",单价:"+priceTotal[i].price.toFixed(2)+"(元),小计:"+priceTotal[i].subtotal.toFixed(2)+"(元)\n";
     }
 
@@ -216,5 +231,17 @@ function printReceipt(buyedBarcodes){
 
   return outPut(getPrice(loadPromotions(loadAllItems(getCount(itemBarcode)))));
 }
+
+console.log(printReceipt([
+  'ITEM000001',
+  'ITEM000001',
+  'ITEM000001',
+  'ITEM000001',
+  'ITEM000001',
+  'ITEM000003-2',
+  'ITEM000005',
+  'ITEM000005',
+  'ITEM000005'
+]));
 
 
