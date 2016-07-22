@@ -123,7 +123,6 @@ describe('pos', () => {
         unit:'瓶',
         price:3.00,
         count:3,
-        type:'NO_PROMOTION',
         payPrice:9,
         saved:0
       },
@@ -134,7 +133,6 @@ describe('pos', () => {
         unit:'个',
         price:2.00,
         count:20,
-        type:'BUY_GREATER_THAN_TEN_GET_95%_DISCOUNT',
         payPrice:38,
         saved:2
       }
@@ -152,7 +150,6 @@ describe('pos', () => {
         unit:'瓶',
         price:3.00,
         count:3,
-        type:'NO_PROMOTION',
         payPrice:9,
         saved:0
       },
@@ -163,7 +160,6 @@ describe('pos', () => {
         unit:'个',
         price:2.00,
         count:20,
-        type:'BUY_GREATER_THAN_TEN_GET_95%_DISCOUNT',
         payPrice:38,
         saved:2
       }
@@ -187,7 +183,6 @@ describe('pos', () => {
         unit:'瓶',
         price:3.00,
         count:3,
-        type:'NO_PROMOTION',
         payPrice:9,
         saved:0
       },
@@ -198,7 +193,6 @@ describe('pos', () => {
         unit:'个',
         price:2.00,
         count:20,
-        type:'BUY_GREATER_THAN_TEN_GET_95%_DISCOUNT',
         payPrice:38,
         saved:2
       }
@@ -218,7 +212,6 @@ describe('pos', () => {
           unit:'瓶',
           price:3.00,
           count:3,
-          type:'NO_PROMOTION',
           payPrice:9,
           saved:0
         },
@@ -228,7 +221,6 @@ describe('pos', () => {
           unit:'个',
           price:2.00,
           count:20,
-          type:'BUY_GREATER_THAN_TEN_GET_95%_DISCOUNT',
           payPrice:38,
           saved:2
         }
@@ -248,6 +240,7 @@ describe('pos', () => {
       'ITEM000001',
       'ITEM000001',
       'ITEM000001',
+      'ITEM000002-14',
       'ITEM000004-20',
       'ITEM000005',
       'ITEM000005',
@@ -260,14 +253,16 @@ describe('pos', () => {
 
     const expText = `***<没钱赚商店>购物清单***
 名称：雪碧，数量：5瓶，单价：3.00(元)，小计：15.00(元)
+名称：苹果，数量：14斤，单价：5.50(元)，小计：73.15(元)，优惠：3.85(元)
 名称：电池，数量：20个，单价：2.00(元)，小计：38.00(元)，优惠：2.00(元)
 名称：方便面，数量：3袋，单价：4.50(元)，小计：13.50(元)
 ----------------------
 批发价出售商品：
+名称：苹果，数量：14斤
 名称：电池，数量：20个
 ----------------------
-总计：66.50(元)
-节省：2.00(元)
+总计：139.65(元)
+节省：5.85(元)
 **********************`;
 
     expect(console.log).toHaveBeenCalledWith(expText);

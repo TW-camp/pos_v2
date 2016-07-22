@@ -62,7 +62,6 @@ function buildPromotedItems(cartItems, promotions) {
   cartItems.forEach((cartItem) => {
     let hasPromoted = false;
     let saved = 0;
-    let type = 'NO_PROMOTION';
 
     currentPromotion.barcodes.forEach((barcode) => {
       if (barcode === cartItem.barcode && cartItem.count > 10) {
@@ -72,7 +71,6 @@ function buildPromotedItems(cartItems, promotions) {
 
     if (hasPromoted) {
       saved = (cartItem.price * 0.05) * cartItem.count;
-      type = 'BUY_GREATER_THAN_TEN_GET_95%_DISCOUNT';
     }
 
     let payPrice = cartItem.price * cartItem.count - saved;
@@ -83,7 +81,6 @@ function buildPromotedItems(cartItems, promotions) {
       unit: cartItem.unit,
       price: cartItem.price,
       count: cartItem.count,
-      type,
       payPrice,
       saved
     });
@@ -119,7 +116,6 @@ function buildReceipt(promotedItems,totalPayPrices) {
       unit:promotedItem.unit,
       price:promotedItem.price,
       count:promotedItem.count,
-      type:promotedItem.type,
       payPrice:promotedItem.payPrice,
       saved:promotedItem.saved
     });
@@ -133,52 +129,21 @@ function buildReceipt(promotedItems,totalPayPrices) {
   return result;
 }
 
-let promotedItems=[
-  {
-    barcode:'ITEM000001',
-    name:'雪碧',
-    unit:'瓶',
-    price:3.00,
-    count:3,
-    type:'NO_PROMOTION',
-    payPrice:9,
-    saved:0
-  },
-
-  {
-    barcode:'ITEM000004',
-    name:'电池',
-    unit:'个',
-    price:2.00,
-    count:20,
-    type:'BUY_GREATER_THAN_TEN_GET_95%_DISCOUNT',
-    payPrice:38,
-    saved:2
-  }
-];
-
-let totalPayPrices={
-  totalPayPrice:47,
-  totalSaved:2
-};
-
-console.log(buildReceipt(promotedItems,totalPayPrices));
-
 
 function buildReceiptString(receipt) {
   let receiptString="";
   let result;
 
   let totalPayPrice = receipt.totalPayPrice;
+  let promotionText="",promotionString="",text="";
   let totalSaved = receipt.totalSaved;
-  let promotionText="",promotionString="";
 
   receipt.receiptItems.forEach((receiptItem) => {
-    if(receiptItem.type !== 'NO_PROMOTION'){
+    if(receiptItem.saved !== 0){
       receiptString +=`名称：${receiptItem.name}，数量：${receiptItem.count}${receiptItem.unit}，单价：${receiptItem.price.toFixed(2)}(元)，小计：${receiptItem.payPrice.toFixed(2)}(元)，优惠：${receiptItem.saved.toFixed(2)}(元)`;
       receiptString+="\n";
 
-      promotionString=`批发价出售商品：\n`;
+      text=`批发价出售商品：\n`;
       promotionString+=`名称：${receiptItem.name}，数量：${receiptItem.count}${receiptItem.unit}`;
       promotionString+="\n";
 
@@ -194,7 +159,7 @@ function buildReceiptString(receipt) {
 
     result = `***<没钱赚商店>购物清单***
 ${receiptString}${promotionText}
-${promotionString}----------------------
+${text}${promotionString}----------------------
 总计：${totalPayPrice.toFixed(2)}(元)
 节省：${totalSaved.toFixed(2)}(元)
 **********************`;
