@@ -144,7 +144,7 @@ describe('pos', () => {
     expect(promotedItems).toEqual(expPromotedItems);
   });
 
-  it('#5|should caculate total prices', () => {
+  it('#5|should calculate total prices', () => {
     const promotedItems = [
       {
         barcode:'ITEM000001',
@@ -169,7 +169,7 @@ describe('pos', () => {
       }
     ];
 
-    let totalPrices = caculateTotalPrices(promotedItems);
+    let totalPrices = calculateTotalPrices(promotedItems);
     const expTotalPrices = {
       totalPayPrice:47,
       totalSaved:2

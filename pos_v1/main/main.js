@@ -94,7 +94,7 @@ function buildPromotedItems(cartItems, promotions) {
 
 
 
-function caculateTotalPrices(promotedItems) {
+function calculateTotalPrices(promotedItems) {
   var result = {
     totalPayPrice:0,
     totalSaved:0
@@ -210,7 +210,7 @@ function printReceipt(tags) {
   let cartItems = buildCartItems(countedBarcodes,allItems);
   let promotions = loadPromotions();
   let promotedItems = buildPromotedItems(cartItems,promotions);
-  let totalPayPrices = caculateTotalPrices(promotedItems);
+  let totalPayPrices = calculateTotalPrices(promotedItems);
   let receipt = buildReceipt(promotedItems,totalPayPrices);
   let receiptText = buildReceiptString(receipt);
   console.log(receiptText);
