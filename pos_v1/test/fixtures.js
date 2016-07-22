@@ -50,6 +50,15 @@ function loadPromotions() {
         'ITEM000001',
         'ITEM000005'
       ]
+    },
+
+    {
+        type: 'BUY_GREATER_THAN_TEN_GET_95%_DISCOUNT',
+      barcodes: [
+        'ITEM000002',
+        'ITEM000003',
+        'ITEM000004'
+      ]
     }
   ];
 }

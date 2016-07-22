@@ -1,15 +1,16 @@
 'use strict';
 
 //测试第一步
-describe('should format tags #1|formatTags()',function () {
-  let tags=[
-    'ITEM000001',
-    'ITEM000002-2',
-    'ITEM000001'
-  ];
-  it('format tags',function () {
-    let result = formatTags(tags);
-    let exp=[
+describe('pos', () => {
+  it('#1|should format tags', () => {
+    const tags=[
+      'ITEM000001',
+      'ITEM000002-2',
+      'ITEM000001'
+    ];
+
+    let formattedTags = formatTags(tags);
+    const expTags=[
       {
         barcode:'ITEM000001',
         count:1
@@ -23,29 +24,27 @@ describe('should format tags #1|formatTags()',function () {
         count:1
       }
     ];
-    expect(result).toEqual(exp);
+    expect(formattedTags).toEqual(expTags);
   });
-});
 
-//测试第二步
-describe('should build counts of items #2|countBarcodes()',function () {
-  let formattedTags=[
-        {
-          barcode:'ITEM000001',
-          count:1
-        },
-        {
-          barcode:'ITEM000002',
-          count:2
-        },
-        {
-          barcode:'ITEM000001',
-          count:1
-        }
-      ];
-  it('countBarcodes function',function () {
-    let result=countBarcodes(formattedTags);
-    let exp=[
+  it('#2|should count barcodes', () => {
+    const formattedTags=[
+      {
+        barcode:'ITEM000001',
+        count:1
+      },
+      {
+        barcode:'ITEM000002',
+        count:2
+      },
+      {
+        barcode:'ITEM000001',
+        count:1
+      }
+    ];
+
+    let countedBarcodes = countBarcodes(formattedTags);
+    const expCounts=[
       {
         barcode:'ITEM000001',
         count:2
@@ -56,13 +55,11 @@ describe('should build counts of items #2|countBarcodes()',function () {
       }
     ];
 
-    expect(result).toEqual(exp);
+    expect(countedBarcodes).toEqual(expCounts);
   });
-});
 
-//测试第三步
-describe('should build cart of items #3|buildCartItems()',function () {
-    let countedBarcodes=[
+  it('#3|should build cart items', () => {
+    const countedBarcodes=[
       {
         barcode:'ITEM000001',
         count:2
@@ -72,10 +69,11 @@ describe('should build cart of items #3|buildCartItems()',function () {
         count:2
       }
     ];
-  let allItems=loadAllItems();
-  it('buildCartItems function',function () {
-    let result=buildCartItems(countedBarcodes,allItems);
-    let exp=[
+
+    let allItems = loadAllItems();
+    let cartItems = buildCartItems(countedBarcodes,allItems);
+
+    const expCarts = [
       {
         barcode:'ITEM000001',
         name:'雪碧',
@@ -92,14 +90,13 @@ describe('should build cart of items #3|buildCartItems()',function () {
       }
     ];
 
-    expect(result).toEqual(exp);
+    expect(cartItems).toEqual(expCarts);
+
   });
-});
 
 
-//测试第四步
-describe('should build promoted items #4|buildPromotedItems()',function () {
-    let cartItems=[
+  it('#4|shuld build promot items', () => {
+    const cartItems=[
       {
         barcode:'ITEM000001',
         name:'雪碧',
@@ -108,162 +105,175 @@ describe('should build promoted items #4|buildPromotedItems()',function () {
         count:3
       },
       {
-        barcode:'ITEM000002',
-        name:'苹果',
-        unit:'斤',
-        price:5.50,
-        count:2
+        barcode:'ITEM000004',
+        name:'电池',
+        unit:'个',
+        price:2.00,
+        count:20
       }
     ];
+
     let promotions = loadPromotions();
-  it('build promotedItems',function () {
-    let result=buildPromotedItems(cartItems,promotions);
-    let exp = [
+    let promotedItems = buildPromotedItems(cartItems,promotions);
+
+    const expPromotedItems = [
       {
         barcode:'ITEM000001',
         name:'雪碧',
         unit:'瓶',
         price:3.00,
         count:3,
-        payPrice:6,
-        saved:3
-      },
-      {
-        barcode:'ITEM000002',
-        name:'苹果',
-        unit:'斤',
-        price:5.50,
-        count:2,
-        payPrice:11,
+        type:'NO_PROMOTION',
+        payPrice:9,
         saved:0
+      },
+
+      {
+        barcode:'ITEM000004',
+        name:'电池',
+        unit:'个',
+        price:2.00,
+        count:20,
+        type:'BUY_GREATER_THAN_TEN_GET_95%_DISCOUNT',
+        payPrice:38,
+        saved:2
       }
     ];
 
-    expect(result).toEqual(exp);
+
+    expect(promotedItems).toEqual(expPromotedItems);
   });
-});
 
-
-//测试第五步
-describe('should caculate total #5|caculateTotalPrices()',function () {
-  let promotedItems = [
-    {
-      barcode:'ITEM000001',
-      name:'雪碧',
-      unit:'瓶',
-      price:3.00,
-      count:3,
-      payPrice:6,
-      saved:3
-    },
-    {
-      barcode:'ITEM000002',
-      name:'苹果',
-      unit:'斤',
-      price:5.50,
-      count:2,
-      payPrice:11,
-      saved:0
-    }
-  ];
-
-  it('caculate total',function () {
-    let result = caculateTotalPrices(promotedItems);
-    let exp={
-      totalPayPrice:17,
-      totalSaved:3
-    };
-
-    expect(result).toEqual(exp);
-  });
-});
-
-//测试第六步
-describe('should build receipt #6|buildReceipt()',function () {
-  let promotedItems = [
-    {
-      barcode:'ITEM000001',
-      name:'雪碧',
-      unit:'瓶',
-      price:3.00,
-      count:3,
-      payPrice:6,
-      saved:3
-    },
-    {
-      barcode:'ITEM000002',
-      name:'苹果',
-      unit:'斤',
-      price:5.50,
-      count:2,
-      payPrice:11,
-      saved:0
-    }
-  ];
-
-  let totalPrices={
-    totalPayPrice:17,
-    totalSaved:3
-  };
-
-  it('build receipt',function () {
-    let result = buildReceipt(promotedItems,totalPrices);
-    let exp = {
-      receiptItems:[
+  it('#5|should caculate total prices', () => {
+    const promotedItems = [
       {
+        barcode:'ITEM000001',
         name:'雪碧',
         unit:'瓶',
         price:3.00,
         count:3,
-        payPrice:6
+        type:'NO_PROMOTION',
+        payPrice:9,
+        saved:0
       },
+
       {
-        name:'苹果',
-        unit:'斤',
-        price:5.50,
-        count:2,
-        payPrice:11
+        barcode:'ITEM000004',
+        name:'电池',
+        unit:'个',
+        price:2.00,
+        count:20,
+        type:'BUY_GREATER_THAN_TEN_GET_95%_DISCOUNT',
+        payPrice:38,
+        saved:2
       }
-    ],
-      totalPayPrice:17,
-      totalSaved:3
-  };
+    ];
 
-  expect(result).toEqual(exp);
+    let totalPrices = caculateTotalPrices(promotedItems);
+    const expTotalPrices = {
+      totalPayPrice:47,
+      totalSaved:2
+    };
+
+    expect(totalPrices).toEqual(expTotalPrices);
   });
-});
 
 
-describe('pos', () => {
+  it('#6|should build receipt',()=>{
+    const promotedItems = [
+      {
+        barcode:'ITEM000001',
+        name:'雪碧',
+        unit:'瓶',
+        price:3.00,
+        count:3,
+        type:'NO_PROMOTION',
+        payPrice:9,
+        saved:0
+      },
+
+      {
+        barcode:'ITEM000004',
+        name:'电池',
+        unit:'个',
+        price:2.00,
+        count:20,
+        type:'BUY_GREATER_THAN_TEN_GET_95%_DISCOUNT',
+        payPrice:38,
+        saved:2
+      }
+    ];
+
+    const totalPayPrices = {
+      totalPayPrice:47,
+      totalSaved:2
+    };
+
+    let receipt = buildReceipt(promotedItems,totalPayPrices);
+
+    let expReceipt = {
+      receiptItems:[
+        {
+          name:'雪碧',
+          unit:'瓶',
+          price:3.00,
+          count:3,
+          type:'NO_PROMOTION',
+          payPrice:9,
+          saved:0
+        },
+
+        {
+          name:'电池',
+          unit:'个',
+          price:2.00,
+          count:20,
+          type:'BUY_GREATER_THAN_TEN_GET_95%_DISCOUNT',
+          payPrice:38,
+          saved:2
+        }
+      ],
+      totalPayPrice:47,
+      totalSaved:2
+    };
+
+    expect(receipt).toEqual(expReceipt);
+
+  });
 
   it('should print text', () => {
-
     const tags = [
       'ITEM000001',
       'ITEM000001',
       'ITEM000001',
       'ITEM000001',
       'ITEM000001',
-      'ITEM000003-2',
+      'ITEM000004-20',
       'ITEM000005',
       'ITEM000005',
       'ITEM000005'
     ];
 
-    spyOn(console, 'log');
+    spyOn(console,'log');
 
     printReceipt(tags);
 
-    const expectText = `***<没钱赚商店>收据***
-名称：雪碧，数量：5瓶，单价：3.00(元)，小计：12.00(元)
-名称：荔枝，数量：2斤，单价：15.00(元)，小计：30.00(元)
-名称：方便面，数量：3袋，单价：4.50(元)，小计：9.00(元)
+    const expText = `***<没钱赚商店>购物清单***
+名称：雪碧，数量：5瓶，单价：3.00(元)，小计：15.00(元)
+名称：电池，数量：20个，单价：2.00(元)，小计：38.00(元)，优惠：2.00(元)
+名称：方便面，数量：3袋，单价：4.50(元)，小计：13.50(元)
 ----------------------
-总计：51.00(元)
-节省：7.50(元)
+批发价出售商品：
+名称：电池，数量：20个
+----------------------
+总计：66.50(元)
+节省：2.00(元)
 **********************`;
 
-    expect(console.log).toHaveBeenCalledWith(expectText);
+    expect(console.log).toHaveBeenCalledWith(expText);
   });
-})
-;
+
+});
+
+
+

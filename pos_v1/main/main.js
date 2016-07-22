@@ -1,150 +1,218 @@
-'use strict';
-
 function _getExistElementByBarcode(array, barcode) {
-  for (let countItem of array) {
-    if (countItem.barcode === barcode) {
-      return countItem;
-    }
-  }
-
-  return null;
+  return array.find((countItem) => {
+    return countItem.barcode === barcode;
+  });
 }
 
 function formatTags(tags) {
-  let result = [];
-  for (let tag of tags) {
-    if (tag.indexOf('-') === -1) {
-      result.push({barcode: tag, count: 1});
+  return tags.map((tag) => {
+    if (tag.includes('-')) {
+      let temps = tag.split('-');
+      return {barcode: temps[0], count: parseInt(temps[1])};
     } else {
-      let temp = tag.split('-');
-      result.push({barcode: temp[0], count: parseInt(temp[1])});
+      return {barcode: tag, count: 1};
     }
-  }
-
-  return result;
+  });
 }
 
 function countBarcodes(formattedTags) {
-  let result = [];
-  for (let formattedTag of formattedTags) {
-    let countItem = _getExistElementByBarcode(result, formattedTag.barcode);
-    if (countItem === null) {
-      result.push({barcode: formattedTag.barcode, count: formattedTag.count});
-    } else {
-      countItem.count += formattedTag.count;
+  let result=[];
+
+  formattedTags.forEach((formattedTag) => {
+    let countItem = _getExistElementByBarcode(result,formattedTag.barcode);
+
+    if(countItem === undefined){
+      result.push({barcode:formattedTag.barcode,count:formattedTag.count});
+    }else {
+      countItem.count+=formattedTag.count;
     }
-  }
+
+  });
+
   return result;
 }
 
+function buildCartItems(countedBarcodes,allItems) {
+  let result=[];
 
-function buildCartItems(countedBarcodes, allItems) {
-  let result = [];
-  for (let countedBarcode of countedBarcodes) {
-    let countItem = _getExistElementByBarcode(allItems, countedBarcode.barcode);
-    result.push({
-      barcode: countItem.barcode,
-      name: countItem.name,
-      unit: countItem.unit,
-      price: countItem.price,
-      count: countedBarcode.count
-    });
-  }
+  countedBarcodes.forEach((countedBarcode) => {
+    let countItem = _getExistElementByBarcode(allItems,countedBarcode.barcode);
+        result.push({
+        barcode:countItem.barcode,
+        name:countItem.name,
+        unit:countItem.unit,
+        price:countItem.price,
+        count:countedBarcode.count
+      });
+
+
+  });
+
   return result;
 }
+
 
 function buildPromotedItems(cartItems, promotions) {
   let result = [];
-  let currentPromotion = promotions[0];
-  for (let element of cartItems) {
-    let saved = 0;
+
+  let currentPromotion = promotions.find((promotion) => {
+    return promotion.type === 'BUY_GREATER_THAN_TEN_GET_95%_DISCOUNT';
+  });
+
+  cartItems.forEach((cartItem) => {
     let hasPromoted = false;
-    for (let barcode of currentPromotion.barcodes) {
-      if (element.barcode === barcode) {
+    let saved = 0;
+    let type = 'NO_PROMOTION';
+
+    currentPromotion.barcodes.forEach((barcode) => {
+      if (barcode === cartItem.barcode && cartItem.count > 10) {
         hasPromoted = true;
       }
+    });
+
+    if (hasPromoted) {
+      saved = (cartItem.price * 0.05) * cartItem.count;
+      type = 'BUY_GREATER_THAN_TEN_GET_95%_DISCOUNT';
     }
-    if (currentPromotion.type === 'BUY_TWO_GET_ONE_FREE' && hasPromoted === true) {
-      saved = element.price * Math.floor(element.count / 3);
-    }
-    let payPrice = element.price * element.count - saved;
+
+    let payPrice = cartItem.price * cartItem.count - saved;
+
     result.push({
-      barcode: element.barcode,
-      name: element.name,
-      unit: element.unit,
-      price: element.price,
-      count: element.count,
+      barcode: cartItem.barcode,
+      name: cartItem.name,
+      unit: cartItem.unit,
+      price: cartItem.price,
+      count: cartItem.count,
+      type,
       payPrice,
       saved
     });
-  }
+  });
+
   return result;
 }
+
 
 
 function caculateTotalPrices(promotedItems) {
-  let result = {
-    totalPayPrice: 0,
-    totalSaved: 0
+  var result = {
+    totalPayPrice:0,
+    totalSaved:0
   };
 
-  for (let item of promotedItems) {
-    result.totalPayPrice += item.payPrice;
-    result.totalSaved += item.saved;
-  }
+  promotedItems.forEach((promotedItem) => {
+    result.totalPayPrice+=promotedItem.payPrice;
+    result.totalSaved+=promotedItem.saved;
+  });
 
   return result;
 }
 
-function buildReceipt(promotedItems, totalPrices) {
+
+
+function buildReceipt(promotedItems,totalPayPrices) {
   let receiptItems = [];
-  for (let item of promotedItems) {
-    receiptItems.push({
-      name: item.name,
-      unit: item.unit,
-      price: item.price,
-      count: item.count,
-      payPrice: item.payPrice
-    });
-  }
 
-  let result = {
+  promotedItems.forEach((promotedItem) => {
+    receiptItems.push({
+      name:promotedItem.name,
+      unit:promotedItem.unit,
+      price:promotedItem.price,
+      count:promotedItem.count,
+      type:promotedItem.type,
+      payPrice:promotedItem.payPrice,
+      saved:promotedItem.saved
+    });
+  });
+  let result={
     receiptItems,
-    totalPayPrice: totalPrices.totalPayPrice,
-    totalSaved: totalPrices.totalSaved
+    totalPayPrice:totalPayPrices.totalPayPrice,
+    totalSaved:totalPayPrices.totalSaved
   };
+
   return result;
 }
 
+let promotedItems=[
+  {
+    barcode:'ITEM000001',
+    name:'雪碧',
+    unit:'瓶',
+    price:3.00,
+    count:3,
+    type:'NO_PROMOTION',
+    payPrice:9,
+    saved:0
+  },
 
-function printReceiptString(receipt) {
-  let result=`***<没钱赚商店>收据***\n`
-  for(let item of receipt.receiptItems){
-      result+=`名称：${item.name}，数量：${item.count}${item.unit}，单价：${item.price.toFixed(2)}(元)，小计：${item.payPrice.toFixed(2)}(元)`
-      result+=`\n`;
+  {
+    barcode:'ITEM000004',
+    name:'电池',
+    unit:'个',
+    price:2.00,
+    count:20,
+    type:'BUY_GREATER_THAN_TEN_GET_95%_DISCOUNT',
+    payPrice:38,
+    saved:2
   }
+];
 
-  result+=`----------------------
-总计：${receipt.totalPayPrice.toFixed(2)}(元)
-节省：${receipt.totalSaved.toFixed(2)}(元)
+let totalPayPrices={
+  totalPayPrice:47,
+  totalSaved:2
+};
+
+console.log(buildReceipt(promotedItems,totalPayPrices));
+
+
+function buildReceiptString(receipt) {
+  let receiptString="";
+  let result;
+
+  let totalPayPrice = receipt.totalPayPrice;
+  let totalSaved = receipt.totalSaved;
+  let promotionText="",promotionString="";
+
+  receipt.receiptItems.forEach((receiptItem) => {
+    if(receiptItem.type !== 'NO_PROMOTION'){
+      receiptString +=`名称：${receiptItem.name}，数量：${receiptItem.count}${receiptItem.unit}，单价：${receiptItem.price.toFixed(2)}(元)，小计：${receiptItem.payPrice.toFixed(2)}(元)，优惠：${receiptItem.saved.toFixed(2)}(元)`;
+      receiptString+="\n";
+
+      promotionString=`批发价出售商品：\n`;
+      promotionString+=`名称：${receiptItem.name}，数量：${receiptItem.count}${receiptItem.unit}`;
+      promotionString+="\n";
+
+      promotionText = `----------------------`;
+
+
+    }else {
+      receiptString +=`名称：${receiptItem.name}，数量：${receiptItem.count}${receiptItem.unit}，单价：${receiptItem.price.toFixed(2)}(元)，小计：${receiptItem.payPrice.toFixed(2)}(元)`;
+      receiptString+="\n";
+      promotionString+="";
+      promotionText+="";
+    }
+
+    result = `***<没钱赚商店>购物清单***
+${receiptString}${promotionText}
+${promotionString}----------------------
+总计：${totalPayPrice.toFixed(2)}(元)
+节省：${totalSaved.toFixed(2)}(元)
 **********************`;
-  console.log(result);
+  });
 
+  return result;
 }
 
 function printReceipt(tags) {
-  let formattedTags=formatTags(tags);
-  let countedBarcodes=countBarcodes(formattedTags);
+  let formattedTags = formatTags(tags);
+  let countedBarcodes = countBarcodes(formattedTags);
+  let allItems = loadAllItems();
+  let cartItems = buildCartItems(countedBarcodes,allItems);
+  let promotions = loadPromotions();
+  let promotedItems = buildPromotedItems(cartItems,promotions);
+  let totalPayPrices = caculateTotalPrices(promotedItems);
+  let receipt = buildReceipt(promotedItems,totalPayPrices);
+  let receiptText = buildReceiptString(receipt);
+  console.log(receiptText);
 
-  let allItems=loadAllItems();
-  let cartItems=buildCartItems(countedBarcodes,allItems);
-
-  let promotion=loadPromotions();
-  let promotedItems = buildPromotedItems(cartItems,promotion);
-
-  let totalPrices= caculateTotalPrices(promotedItems);
-
-  let receipt = buildReceipt(promotedItems,totalPrices);
-  return printReceiptString(receipt);
 }
-
